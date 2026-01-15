@@ -1,5 +1,5 @@
 import { FileUploader } from '@/components/FileUploader';
-import { Cloud } from 'lucide-react';
+import { Cloud, Database, Shield } from 'lucide-react';
 
 const Index = () => {
   return (
@@ -11,16 +11,15 @@ const Index = () => {
             <Cloud className="w-10 h-10 text-primary" />
           </div>
           <h1 className="text-4xl font-bold text-foreground mb-3">
-            File Upload
+            Cloud File Upload
           </h1>
           <p className="text-lg text-muted-foreground max-w-md mx-auto">
-            Drag and drop your files or click to browse. Fast, simple, and secure uploads.
+            Drag and drop your files or click to browse. Files are securely stored in the cloud.
           </p>
         </div>
 
         {/* File Uploader Component */}
         <FileUploader
-          endpoint="/api/upload"
           maxFileSize={10}
           onUploadComplete={(files) => {
             console.log('Upload complete:', files);
@@ -29,17 +28,26 @@ const Index = () => {
 
         {/* Info Section */}
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="p-4 rounded-xl bg-card border text-center">
-            <div className="text-2xl font-bold text-primary">10MB</div>
+          <div className="p-5 rounded-xl bg-card border text-center">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 mb-3">
+              <Cloud className="w-5 h-5 text-primary" />
+            </div>
+            <div className="text-2xl font-bold text-foreground">10MB</div>
             <div className="text-sm text-muted-foreground">Max file size</div>
           </div>
-          <div className="p-4 rounded-xl bg-card border text-center">
-            <div className="text-2xl font-bold text-primary">All</div>
-            <div className="text-sm text-muted-foreground">File types</div>
+          <div className="p-5 rounded-xl bg-card border text-center">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 mb-3">
+              <Database className="w-5 h-5 text-primary" />
+            </div>
+            <div className="text-2xl font-bold text-foreground">All Types</div>
+            <div className="text-sm text-muted-foreground">Supported</div>
           </div>
-          <div className="p-4 rounded-xl bg-card border text-center">
-            <div className="text-2xl font-bold text-primary">∞</div>
-            <div className="text-sm text-muted-foreground">Multiple files</div>
+          <div className="p-5 rounded-xl bg-card border text-center">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 mb-3">
+              <Shield className="w-5 h-5 text-primary" />
+            </div>
+            <div className="text-2xl font-bold text-foreground">Secure</div>
+            <div className="text-sm text-muted-foreground">Cloud storage</div>
           </div>
         </div>
       </div>

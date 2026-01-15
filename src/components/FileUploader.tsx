@@ -1,18 +1,19 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Upload, X, FileText, Image, FileArchive, File, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Upload, X, FileText, Image, FileArchive, File, CheckCircle2, AlertCircle, Loader2, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UploadedFile {
   id: string;
   file: File;
   status: 'pending' | 'uploading' | 'success' | 'error';
   progress: number;
+  url?: string;
   errorMessage?: string;
 }
 
 interface FileUploaderProps {
-  endpoint?: string;
   maxFileSize?: number; // in MB
   acceptedTypes?: string[];
   onUploadComplete?: (files: UploadedFile[]) => void;
@@ -34,7 +35,6 @@ const formatFileSize = (bytes: number): string => {
 };
 
 export const FileUploader: React.FC<FileUploaderProps> = ({
-  endpoint = '/api/upload',
   maxFileSize = 10,
   acceptedTypes = ['*'],
   onUploadComplete,
@@ -112,7 +112,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         )
       );
 
-      // Simulate progress updates (real progress would come from XMLHttpRequest)
+      // Simulate progress updates
       const progressInterval = setInterval(() => {
         setFiles(prev =>
           prev.map(f =>
@@ -123,18 +123,22 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         );
       }, 200);
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
+      // Call the edge function using Supabase client
+      const { data, error } = await supabase.functions.invoke('upload', {
         body: formData,
       });
 
       clearInterval(progressInterval);
 
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
+      if (error) {
+        throw new Error(error.message || 'Upload failed');
       }
 
-      return { ...uploadedFile, status: 'success', progress: 100 };
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      return { ...uploadedFile, status: 'success', progress: 100, url: data?.file?.url };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Upload failed';
       return { ...uploadedFile, status: 'error', errorMessage, progress: 0 };
@@ -267,6 +271,19 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
                           style={{ width: `${uploadedFile.progress}%` }}
                         />
                       </div>
+                    )}
+                    
+                    {uploadedFile.status === 'success' && uploadedFile.url && (
+                      <a 
+                        href={uploadedFile.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-xs text-primary hover:underline flex items-center gap-1 mt-1"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        View file
+                      </a>
                     )}
                     
                     {uploadedFile.status === 'error' && uploadedFile.errorMessage && (
